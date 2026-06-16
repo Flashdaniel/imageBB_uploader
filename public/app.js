@@ -11,14 +11,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleLinksOnly = document.getElementById('toggle-links-only');
     const copyAllBtn = document.getElementById('copy-all-btn');
     const copyAllText = copyAllBtn.querySelector('.copy-all-text');
+    const clearAllBtn = document.getElementById('clear-all-btn');
 
     let selectedFiles = [];
+    let savedUploads = JSON.parse(localStorage.getItem('imgbb_uploads') || '[]');
+
+    function saveUploads() {
+        localStorage.setItem('imgbb_uploads', JSON.stringify(savedUploads));
+    }
 
     // Load saved API key if exists
     const savedKey = localStorage.getItem('imgbb_api_key');
     if (savedKey) {
         apiKeyInput.value = savedKey;
     }
+
+    // Load saved history
+    if (savedUploads.length > 0) {
+        resultsSection.classList.remove('hidden');
+        savedUploads.forEach(upload => {
+            renderResultCard(upload.id, upload.fileName, upload.info, upload.isSuccess);
+        });
+    }
+
+    // Handle Clear All
+    clearAllBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to clear all upload history?')) {
+            savedUploads = [];
+            saveUploads();
+            resultsGrid.innerHTML = '';
+            resultsSection.classList.add('hidden');
+        }
+    });
 
     // Handle Links Only Toggle
     toggleLinksOnly.addEventListener('change', (e) => {
@@ -165,7 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update UI
         setLoading(true);
         resultsSection.classList.remove('hidden');
-        resultsGrid.innerHTML = ''; // Clear previous
 
         for (const file of selectedFiles) {
             await uploadFile(file, apiKey);
@@ -189,22 +212,34 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const data = await response.json();
+            const id = Date.now().toString() + Math.random().toString(36).substr(2, 5);
 
             if (data.success) {
-                renderResultCard(file.name, data.data.url, true);
+                const uploadData = { id, fileName: file.name, info: data.data.url, isSuccess: true };
+                savedUploads.unshift(uploadData);
+                saveUploads();
+                renderResultCard(id, file.name, data.data.url, true, true);
             } else {
-                renderResultCard(file.name, data.error?.message || 'Upload failed', false);
+                const uploadData = { id, fileName: file.name, info: data.error?.message || 'Upload failed', isSuccess: false };
+                savedUploads.unshift(uploadData);
+                saveUploads();
+                renderResultCard(id, file.name, uploadData.info, false, true);
             }
         } catch (error) {
-            renderResultCard(file.name, 'Network error or Invalid Key', false);
+            const id = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+            const uploadData = { id, fileName: file.name, info: 'Network error or Invalid Key', isSuccess: false };
+            savedUploads.unshift(uploadData);
+            saveUploads();
+            renderResultCard(id, file.name, uploadData.info, false, true);
         }
     }
 
-    function renderResultCard(fileName, info, isSuccess) {
+    function renderResultCard(id, fileName, info, isSuccess, prepend = false) {
         const div = document.createElement('div');
         div.className = 'result-card';
+        div.dataset.id = id;
         
-        let content = '';
+        let content = `<button class="card-delete-btn" title="Delete record">×</button>`;
         if (isSuccess) {
             content = `
                 <img src="${info}" alt="${fileName}" class="result-image">
@@ -231,7 +266,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         div.innerHTML = content;
-        resultsGrid.appendChild(div);
+        if (prepend) {
+            resultsGrid.prepend(div);
+        } else {
+            resultsGrid.appendChild(div);
+        }
+
+        // Handle delete
+        const deleteBtn = div.querySelector('.card-delete-btn');
+        deleteBtn.addEventListener('click', () => {
+            savedUploads = savedUploads.filter(u => u.id !== id);
+            saveUploads();
+            div.remove();
+            if (savedUploads.length === 0) {
+                resultsSection.classList.add('hidden');
+            }
+        });
 
         if (isSuccess) {
             const copyBtn = div.querySelector('.copy-btn');

@@ -315,6 +315,28 @@ body {
     border-color: var(--text-muted);
 }
 
+/* Clear All Button */
+.clear-all-btn {
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: var(--error);
+    padding: 0.35rem 0.6rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    font-family: inherit;
+}
+
+.clear-all-btn:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: var(--error);
+}
+
 /* Minimal Toggle Switch */
 .toggle-switch {
     display: flex;
@@ -385,6 +407,38 @@ body {
     transform: translateY(-4px);
     box-shadow: 0 8px 24px rgba(0,0,0,0.2);
     border-color: var(--border-hover);
+}
+
+.result-card:hover .card-delete-btn {
+    opacity: 1;
+}
+
+.card-delete-btn {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.4rem;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s;
+    z-index: 10;
+    font-size: 1rem;
+    line-height: 1;
+    padding-bottom: 2px;
+}
+
+.card-delete-btn:hover {
+    background: var(--error);
+    border-color: var(--error);
 }
 
 .result-image {
@@ -476,4 +530,21 @@ body {
 .results-grid.links-only-mode .result-info {
     padding: 0;
     width: 100%;
+}
+
+.results-grid.links-only-mode .card-delete-btn {
+    position: relative;
+    top: auto;
+    right: auto;
+    opacity: 1;
+    background: rgba(255,255,255,0.05);
+    border-color: transparent;
+    color: var(--text-muted);
+    margin-left: 0.5rem;
+    flex-shrink: 0;
+}
+
+.results-grid.links-only-mode .card-delete-btn:hover {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--error);
 }
