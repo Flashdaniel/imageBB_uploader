@@ -190,9 +190,8 @@ document.addEventListener('DOMContentLoaded', () => {
         setLoading(true);
         resultsSection.classList.remove('hidden');
 
-        for (const file of selectedFiles) {
-            await uploadFile(file, apiKey);
-        }
+        // Upload all images in parallel for maximum speed
+        await Promise.all(selectedFiles.map(file => uploadFile(file, apiKey)));
 
         // Clean up
         selectedFiles = [];
@@ -211,6 +210,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: formData
             });
 
+            if (!response.ok) {
+                let errMsg = `HTTP Error ${response.status}`;
+                try {
+                    const errData = await response.json();
+                    errMsg = errData.error?.message || errMsg;
+                } catch(e) {}
+                throw new Error(errMsg);
+            }
+
             const data = await response.json();
             const id = Date.now().toString() + Math.random().toString(36).substr(2, 5);
 
@@ -220,14 +228,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 saveUploads();
                 renderResultCard(id, file.name, data.data.url, true, true);
             } else {
-                const uploadData = { id, fileName: file.name, info: data.error?.message || 'Upload failed', isSuccess: false };
-                savedUploads.unshift(uploadData);
-                saveUploads();
-                renderResultCard(id, file.name, uploadData.info, false, true);
+                throw new Error(data.error?.message || 'Upload failed');
             }
         } catch (error) {
             const id = Date.now().toString() + Math.random().toString(36).substr(2, 5);
-            const uploadData = { id, fileName: file.name, info: 'Network error or Invalid Key', isSuccess: false };
+            const uploadData = { id, fileName: file.name, info: error.message || 'Network error or Invalid Key', isSuccess: false };
             savedUploads.unshift(uploadData);
             saveUploads();
             renderResultCard(id, file.name, uploadData.info, false, true);
@@ -241,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let content = `<button class="card-delete-btn" title="Delete record">×</button>`;
         if (isSuccess) {
-            content = `
+            content += `
                 <img src="${info}" alt="${fileName}" class="result-image">
                 <div class="result-info">
                     <span class="result-status status-success">✓ Uploaded Successfully</span>
@@ -254,7 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
         } else {
-            content = `
+            content += `
                 <div class="result-image" style="display: flex; align-items: center; justify-content: center; background: rgba(239, 68, 68, 0.1);">
                     <svg width="32" height="32" stroke="var(--error)" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                 </div>
@@ -267,21 +272,27 @@ document.addEventListener('DOMContentLoaded', () => {
         
         div.innerHTML = content;
         if (prepend) {
-            resultsGrid.prepend(div);
+            if (resultsGrid.firstChild) {
+                resultsGrid.insertBefore(div, resultsGrid.firstChild);
+            } else {
+                resultsGrid.appendChild(div);
+            }
         } else {
             resultsGrid.appendChild(div);
         }
 
         // Handle delete
         const deleteBtn = div.querySelector('.card-delete-btn');
-        deleteBtn.addEventListener('click', () => {
-            savedUploads = savedUploads.filter(u => u.id !== id);
-            saveUploads();
-            div.remove();
-            if (savedUploads.length === 0) {
-                resultsSection.classList.add('hidden');
-            }
-        });
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', () => {
+                savedUploads = savedUploads.filter(u => u.id !== id);
+                saveUploads();
+                div.remove();
+                if (savedUploads.length === 0) {
+                    resultsSection.classList.add('hidden');
+                }
+            });
+        }
 
         if (isSuccess) {
             const copyBtn = div.querySelector('.copy-btn');
