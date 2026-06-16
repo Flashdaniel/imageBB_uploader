@@ -45,11 +45,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Handle Links Only Toggle
+    const savedLinksOnly = localStorage.getItem('imgbb_links_only_mode') === 'true';
+    if (savedLinksOnly) {
+        toggleLinksOnly.checked = true;
+        resultsGrid.classList.add('links-only-mode');
+    }
+
     toggleLinksOnly.addEventListener('change', (e) => {
         if (e.target.checked) {
             resultsGrid.classList.add('links-only-mode');
+            localStorage.setItem('imgbb_links_only_mode', 'true');
         } else {
             resultsGrid.classList.remove('links-only-mode');
+            localStorage.setItem('imgbb_links_only_mode', 'false');
         }
     });
 
