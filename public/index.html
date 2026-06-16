@@ -51,11 +51,17 @@
             <section id="results-section" class="results-section glass-panel hidden">
                 <div class="results-header">
                     <h2>Upload Results</h2>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="toggle-links-only">
-                        <span class="slider"></span>
-                        <span class="toggle-label">Links Only</span>
-                    </label>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <button id="copy-all-btn" class="copy-all-btn" title="Copy all links to clipboard">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            <span class="copy-all-text">Copy All</span>
+                        </button>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-links-only">
+                            <span class="slider"></span>
+                            <span class="toggle-label">Links Only</span>
+                        </label>
+                    </div>
                 </div>
                 <div id="results-grid" class="results-grid"></div>
             </section>
