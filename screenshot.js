@@ -8,7 +8,7 @@ const puppeteer = require('puppeteer');
         const page = await browser.newPage();
         
         // Wait for the local server to respond
-        await page.goto('http://localhost:3000', { waitUntil: 'networkidle0' });
+        await page.goto('https://Flashdaniel.github.io/imageBB_uploader/', { waitUntil: 'networkidle0' });
         
         // Type a dummy API key to make the UI look active
         await page.type('#api-key', '••••••••••••••••••••••••••••••••');
