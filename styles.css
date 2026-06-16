@@ -293,6 +293,28 @@ body {
     margin-bottom: 0;
 }
 
+/* Copy All Button */
+.copy-all-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 0.35rem 0.6rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    font-family: inherit;
+}
+
+.copy-all-btn:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: var(--text-muted);
+}
+
 /* Minimal Toggle Switch */
 .toggle-switch {
     display: flex;

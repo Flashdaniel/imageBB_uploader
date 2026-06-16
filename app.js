@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnText = uploadBtn.querySelector('.btn-text');
     const spinner = uploadBtn.querySelector('.spinner');
     const toggleLinksOnly = document.getElementById('toggle-links-only');
+    const copyAllBtn = document.getElementById('copy-all-btn');
+    const copyAllText = copyAllBtn.querySelector('.copy-all-text');
 
     let selectedFiles = [];
 
@@ -24,6 +26,40 @@ document.addEventListener('DOMContentLoaded', () => {
             resultsGrid.classList.add('links-only-mode');
         } else {
             resultsGrid.classList.remove('links-only-mode');
+        }
+    });
+
+    // Handle Copy All
+    copyAllBtn.addEventListener('click', () => {
+        const inputs = resultsGrid.querySelectorAll('.copy-group input');
+        if (inputs.length === 0) return;
+        
+        const urls = Array.from(inputs).map(input => input.value).join('\n');
+        
+        const finishCopy = () => {
+            const originalText = copyAllText.textContent;
+            copyAllText.textContent = 'Copied!';
+            copyAllBtn.style.color = 'var(--success)';
+            copyAllBtn.style.borderColor = 'var(--success)';
+            setTimeout(() => {
+                copyAllText.textContent = originalText;
+                copyAllBtn.style.color = 'var(--text-main)';
+                copyAllBtn.style.borderColor = 'var(--border-color)';
+            }, 2000);
+        };
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(urls).then(finishCopy);
+        } else {
+            const textarea = document.createElement('textarea');
+            textarea.value = urls;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            finishCopy();
         }
     });
 
