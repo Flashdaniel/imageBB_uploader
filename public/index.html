@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImgBB Uploader Premium</title>
+    <meta name="description" content="A beautiful and modern tool for uploading images directly to ImgBB.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>ImgBB <span>Uploader</span></h1>
+            <p>Securely upload your images in seconds.</p>
+        </header>
+
+        <main class="main-content">
+            <section class="config-section glass-panel">
+                <div class="input-group">
+                    <label for="api-key">API Key</label>
+                    <input type="password" id="api-key" placeholder="Enter your ImgBB API v1 Key">
+                    <small>Your key is never stored on any server, only used directly from your browser.</small>
+                </div>
+            </section>
+
+            <section class="upload-section glass-panel">
+                <div id="drop-zone" class="drop-zone">
+                    <div class="drop-zone-content">
+                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <h3>Drag & Drop Images Here</h3>
+                        <p>or click to browse from your device</p>
+                    </div>
+                    <input type="file" id="file-input" multiple accept="image/*" class="hidden-input">
+                </div>
+                
+                <div id="file-preview-list" class="file-preview-list"></div>
+
+                <button id="upload-btn" class="primary-btn" disabled>
+                    <span class="btn-text">Upload Images</span>
+                    <div class="spinner hidden"></div>
+                </button>
+            </section>
+
+            <section id="results-section" class="results-section glass-panel hidden">
+                <div class="results-header">
+                    <h2>Upload Results</h2>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="toggle-links-only">
+                        <span class="slider"></span>
+                        <span class="toggle-label">Links Only</span>
+                    </label>
+                </div>
+                <div id="results-grid" class="results-grid"></div>
+            </section>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
