@@ -3,6 +3,7 @@ const fs = require("fs/promises");
 const path = require("path");
 const axios = require("axios");
 const logger = require("./logger");
+const { getDb } = require("./db");
 
 const { IMGBB_API_KEY, IMGBB_UPLOAD_URL, IMAGES_DIR } = require("./config");
 
@@ -57,6 +58,14 @@ async function uploadAllImages() {
     const pngFiles = files.filter((file) => file.endsWith(".png"));
     const uploadResults = [];
 
+    const db = await getDb();
+    let existingMetadata = [];
+    try {
+      existingMetadata = await db.all("SELECT name FROM uploads");
+    } catch (err) {
+      logger.error({ err }, "Failed to load existing metadata from db");
+    }
+
     logger.info({ fileCount: pngFiles.length }, "Found PNG files to upload");
 
     for (const file of pngFiles) {
@@ -65,9 +74,10 @@ async function uploadAllImages() {
         const stats = await fs.stat(filePath);
         if (!stats.isFile()) continue;
 
-        const alreadyUploaded = uploadResults.some(
-          (result) => result.file === file,
-        );
+        const alreadyUploaded =
+          uploadResults.some((result) => result.name === file) ||
+          existingMetadata.some((result) => result.name === file);
+
         if (alreadyUploaded) {
           logger.info(`Skipping ${file} as it has already been uploaded.`);
           continue;
@@ -76,7 +86,8 @@ async function uploadAllImages() {
         const result = await uploadImage(filePath);
         if (result) {
           uploadResults.push({
-            file: file,
+            name: file,
+            date: new Date().toISOString(),
             url: result.url,
             display_url: result.display_url,
             delete_url: result.delete_url,
@@ -92,8 +103,25 @@ async function uploadAllImages() {
     if (uploadResults.length > 0) {
       console.log("\n=== Upload Summary ===");
       uploadResults.forEach((r) => {
-        console.log(`${r.file}: ${r.url}`);
+        console.log(`${r.name}: ${r.url}`);
       });
+
+      for (const r of uploadResults) {
+        await db.run(
+          `INSERT OR REPLACE INTO uploads (id, name, date, url, display_url, delete_url, isSuccess)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          [
+            Date.now().toString() + Math.random().toString(36).substr(2, 5),
+            r.name,
+            r.date,
+            r.url,
+            r.display_url,
+            r.delete_url,
+            1
+          ]
+        );
+      }
+      logger.info("Metadata successfully saved to database");
     }
   } catch (error) {
     logger.error({ error }, "Error uploading images");
