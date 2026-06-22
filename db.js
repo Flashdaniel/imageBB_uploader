@@ -3,8 +3,9 @@ const { open } = require('sqlite');
 const path = require('path');
 
 async function getDb() {
+  const dbPath = process.env.DB_PATH || path.join(__dirname, 'metadata.db');
   const db = await open({
-    filename: path.join(__dirname, 'metadata.db'),
+    filename: dbPath,
     driver: sqlite3.Database
   });
 
