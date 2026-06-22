@@ -735,4 +735,25 @@ document.addEventListener('DOMContentLoaded', () => {
             // updateUploadButton will run later
         }
     }
+
+    // Password Toggle Logic
+    const toggleBtns = document.querySelectorAll('.password-toggle-btn');
+    toggleBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const wrapper = btn.closest('.password-wrapper');
+            const input = wrapper.querySelector('input');
+            const eyeIcon = btn.querySelector('.eye-icon');
+            const eyeOffIcon = btn.querySelector('.eye-off-icon');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeIcon.classList.add('hidden');
+                eyeOffIcon.classList.remove('hidden');
+            } else {
+                input.type = 'password';
+                eyeIcon.classList.remove('hidden');
+                eyeOffIcon.classList.add('hidden');
+            }
+        });
+    });
 });
