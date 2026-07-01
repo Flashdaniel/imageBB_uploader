@@ -415,10 +415,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Handle Copy All
     copyAllBtn.addEventListener('click', () => {
-        const inputs = resultsGrid.querySelectorAll('.copy-group input');
-        if (inputs.length === 0) return;
+        const validUrls = (savedUploads || [])
+            .filter(upload => upload.isSuccess !== false)
+            .map(upload => upload.url || upload.info)
+            .filter(url => url && typeof url === 'string' && url.startsWith('http'));
+
+        if (validUrls.length === 0) return;
         
-        const urls = Array.from(inputs).map(input => input.value).join('\n');
+        const urls = validUrls.join('\n');
         
         const finishCopy = () => {
             const originalText = copyAllText.textContent;
